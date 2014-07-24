@@ -54,6 +54,7 @@ do
                 "2") echo "PostgreSQL"
                 db_choice="PostgreSQL"
                 db_dependencies="php5-pgsql postgresql-client postgresql-commonq"
+                echo "Creation of the database not yet automatized, do it yourself or come back soon"
                 ;;
                 "3")echo "Database will not be set automatically"
                 db_choice="none"
@@ -98,55 +99,55 @@ if $no_webserver ; then
         read answer
 
         if [ $answer = "y" ]; then
-                $webserver="apache2"
+                webserver="apache2"
         else
                 echo "Aborting installation"
                 exit 1
         fi
 fi
 
-website_root=`cat /etc/apache2/sites-available/000-default.conf | grep DocumentRoot`
+website_root=`cat /etc/apache2/sites-available/000-default.conf | grep DocumentRoot | cut -f 2- -d' '`
 echo $website_root
 
 
-# ##########################
-# echo -e '\E[37;00m'"\033[1m\n4 - Installing packages dependencies and required tools\n\033[0m"
-#
-# apt-get install $tool_to_install $dependencies $db_dependencies $webserver
-#
-# ##########################
-# echo -e '\E[37;00m'"\033[1m\n5 - Downloading latest Movim code\n\033[0m"
-#
-# cd /var/www/ # Server directory
-# sudo -s -u www-data # We use the web-server user
-# bzr branch lp:movim # We copy the source-code from the repository
-#
-# ##########################
-# echo -e '\E[37;00m'"\033[1m\n6 - Installing Movim dependencies\n\033[0m"
-#
-# cd movim
-# curl -sS https://getcomposer.org/installer | php
-# php composer.phar install
-# cd ..
-# su www-data
-# chown www-data movim/
-#
-# ##########################
-# echo -e '\E[37;00m'"\033[1m\n7 - Configuring database\n\033[0m"
-#
-# generated_password=`tr -dc A-Za-z0-9_ < /dev/urandom | head -c 8 | xargs`
-# if [ "$db_choice" = "MySQL"  ]; then
-#         port=3306
-#         statement="CREATE DATABASE movimDB ; CREATE USER 'movimAdmin'@'localhost' IDENTIFIED BY '$generated_password' ; GRANT ALL PRIVILEGES ON movimDB.* TO 'movimAdmin'@localhost' WITH GRANT OPTION ;"
-#
-#         echo -n "Enter the MySQL root password :"
-#         read -s mysql_root_password
-#
-#         mysql --user=root --password="$mysql_root_password" --execute=$statement
-#
-#         echo -e "<?php\n\$conf = array(\n\t'type' => 'mysql',\n\t'username' => 'movimAdmin',\n\t'password' => '$generated_password',\n\t'host' => 'localhost',\n\t'port => $port,\n\t'database' => 'movimDB'\n);" > /var/www/movim/db.inc.php
-# fi
-#
-# ##########################
-# echo -e '\E[37;00m'"\033[1m\n8 - Cleaning\n\033[0m"
-# apt-get remove $tool_to_install
+##########################
+echo -e '\E[37;00m'"\033[1m\n4 - Installing packages dependencies and required tools\n\033[0m"
+
+apt-get install $tool_to_install $dependencies $db_dependencies $webserver
+
+##########################
+echo -e '\E[37;00m'"\033[1m\n5 - Downloading latest Movim code\n\033[0m"
+
+cd $website_root # Server directory
+sudo -s -u www-data # We use the web-server user
+bzr branch lp:movim # We copy the source-code from the repository
+
+##########################
+echo -e '\E[37;00m'"\033[1m\n6 - Installing Movim dependencies\n\033[0m"
+
+cd movim
+curl -sS https://getcomposer.org/installer | php
+php composer.phar install
+cd ..
+su www-data
+chown www-data movim/
+
+##########################
+echo -e '\E[37;00m'"\033[1m\n7 - Configuring database\n\033[0m"
+
+generated_password=`tr -dc A-Za-z0-9_ < /dev/urandom | head -c 12 | xargs`
+if [ "$db_choice" = "MySQL"  ]; then
+        port=3306
+        statement="CREATE DATABASE movimDB ; CREATE USER 'movimAdmin'@'localhost' IDENTIFIED BY '$generated_password' ; GRANT ALL PRIVILEGES ON movimDB.* TO 'movimAdmin'@localhost' WITH GRANT OPTION ;"
+
+        echo -n "Enter the MySQL root password :"
+        read -s mysql_root_password
+
+        mysql --user=root --password="$mysql_root_password" --execute=$statement
+
+        echo -e "<?php\n\$conf = array(\n\t'type' => 'mysql',\n\t'username' => 'movimAdmin',\n\t'password' => '$generated_password',\n\t'host' => 'localhost',\n\t'port => $port,\n\t'database' => 'movimDB'\n);" > $website_root/movim/db.inc.php
+fi
+
+##########################
+echo -e '\E[37;00m'"\033[1m\n8 - Cleaning\n\033[0m"
+apt-get remove $tool_to_install
