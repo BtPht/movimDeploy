@@ -49,11 +49,11 @@ do
         case "$choice" in
                 "1") echo "MySQL"
                 db_choice="MySQL"
-                db_dependencies="php5-mysql mysql-common mysql-client"
+                db_dependencies="php5-mysql mysql-common mysql-client mysql-server"
                 ;;
                 "2") echo "PostgreSQL"
                 db_choice="PostgreSQL"
-                db_dependencies="php5-pgsql postgresql-client postgresql-commonq"
+                db_dependencies="php5-pgsql postgresql-client postgresql-commonq postgresql-server"
                 echo "Creation of the database not yet automatized, do it yourself or come back soon"
                 ;;
                 "3")echo "Database will not be set automatically"
@@ -113,7 +113,7 @@ echo $website_root
 ##########################
 echo -e '\E[37;00m'"\033[1m\n4 - Installing packages dependencies and required tools\n\033[0m"
 
-apt-get install $tool_to_install $dependencies $db_dependencies $webserver
+apt-get install  $webserver $db_dependencies $dependencies $tool_to_install
 
 ##########################
 echo -e '\E[37;00m'"\033[1m\n5 - Downloading latest Movim code\n\033[0m"
@@ -128,9 +128,7 @@ echo -e '\E[37;00m'"\033[1m\n6 - Installing Movim dependencies\n\033[0m"
 cd movim
 curl -sS https://getcomposer.org/installer | php
 php composer.phar install
-cd ..
-su www-data
-chown www-data movim/
+
 
 ##########################
 echo -e '\E[37;00m'"\033[1m\n7 - Configuring database\n\033[0m"
@@ -143,10 +141,12 @@ if [ "$db_choice" = "MySQL"  ]; then
         echo -n "Enter the MySQL root password :"
         read -s mysql_root_password
 
-        mysql --user=root --password="$mysql_root_password" --execute=$statement
+        echo $statement | mysql -uroot --password="$mysql_root_password" mysql
 
         echo -e "<?php\n\$conf = array(\n\t'type' => 'mysql',\n\t'username' => 'movimAdmin',\n\t'password' => '$generated_password',\n\t'host' => 'localhost',\n\t'port => $port,\n\t'database' => 'movimDB'\n);" > $website_root/movim/db.inc.php
 fi
+
+chown www-data:www-data -R $website_root/movim
 
 ##########################
 echo -e '\E[37;00m'"\033[1m\n8 - Cleaning\n\033[0m"
