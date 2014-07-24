@@ -119,7 +119,7 @@ apt-get install  $webserver $db_dependencies $dependencies $tool_to_install
 echo -e '\E[37;00m'"\033[1m\n5 - Downloading latest Movim code\n\033[0m"
 
 cd $website_root # Server directory
-sudo -s -u www-data # We use the web-server user
+#sudo -s -u www-data # We use the web-server user
 bzr branch lp:movim # We copy the source-code from the repository
 
 ##########################
@@ -136,7 +136,7 @@ echo -e '\E[37;00m'"\033[1m\n7 - Configuring database\n\033[0m"
 generated_password=`tr -dc A-Za-z0-9_ < /dev/urandom | head -c 12 | xargs`
 if [ "$db_choice" = "MySQL"  ]; then
         port=3306
-        statement="CREATE DATABASE movimDB ; CREATE USER 'movimAdmin'@'localhost' IDENTIFIED BY '$generated_password' ; GRANT ALL PRIVILEGES ON movimDB.* TO 'movimAdmin'@localhost' WITH GRANT OPTION ;"
+        statement="CREATE DATABASE movimDB ; CREATE USER 'movimAdmin'@'localhost' IDENTIFIED BY '$generated_password' ; GRANT ALL PRIVILEGES ON movimDB.* TO 'movimAdmin'@'localhost' WITH GRANT OPTION ;"
 
         echo -n "Enter the MySQL root password :"
         read -s mysql_root_password
