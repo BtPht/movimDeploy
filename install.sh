@@ -142,7 +142,7 @@ if [ "$db_choice" = "MySQL"  ]; then
 
         echo $statement | mysql -uroot --password="$mysql_root_password" mysql
 
-        echo -e "<?php\n\$conf = array(\n\t'type' => 'mysql',\n\t'username' => 'movimAdmin',\n\t'password' => '$generated_password',\n\t'host' => 'localhost',\n\t'port => $port,\n\t'database' => 'movimDB'\n);" > $website_root/movim/config/db.inc.php
+        echo -e "<?php\n\$conf = array(\n\t'type' => 'mysql',\n\t'username' => 'movimAdmin',\n\t'password' => '$generated_password',\n\t'host' => 'localhost',\n\t'port' => $port,\n\t'database' => 'movimDB'\n);" > $website_root/movim/config/db.inc.php
 fi
 
 chown www-data:www-data -R $website_root/movim
