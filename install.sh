@@ -106,10 +106,6 @@ if $no_webserver ; then
         fi
 fi
 
-website_root=`cat /etc/apache2/sites-available/000-default.conf | grep DocumentRoot | cut -f 2- -d' '`
-echo $website_root
-
-
 ##########################
 echo -e '\E[37;00m'"\033[1m\n4 - Installing packages dependencies and required tools\n\033[0m"
 
@@ -117,6 +113,9 @@ apt-get install  $webserver $db_dependencies $dependencies $tool_to_install
 
 ##########################
 echo -e '\E[37;00m'"\033[1m\n5 - Downloading latest Movim code\n\033[0m"
+
+#this line assumes the server is apahe2. Other webservers will be configured soon
+website_root=`cat /etc/apache2/sites-available/000-default.conf | grep DocumentRoot | cut -f 2- -d' '`
 
 cd $website_root # Server directory
 #sudo -s -u www-data # We use the web-server user
