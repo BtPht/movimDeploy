@@ -1,6 +1,6 @@
 movimDeploy
 ===========
-author <bertrand.pechenot@gmail.com>
+author :  bertrand dot pechenot at gmail dot com
 
 Script bash to automatically deploy a Movim node.
 
