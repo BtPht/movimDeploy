@@ -96,6 +96,7 @@ fi
 
 if $no_webserver ; then
         echo -n "Voulez vous installer automatiquement Apache2 webserver ? [y/n] "
+        echo -n "do you want to automatically install Apache2 webserver ? [y/n] "
         read answer
 
         if [ $answer = "y" ]; then
