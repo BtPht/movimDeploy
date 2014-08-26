@@ -48,11 +48,11 @@ while [ "$db_choice" = "" ]
 do
         case "$choice" in
                 "1") echo "MySQL"
-                db_choice="MySQL"
+                db_choice="mysql"
                 db_dependencies="php5-mysql mysql-common mysql-client mysql-server"
                 ;;
                 "2") echo "PostgreSQL"
-                db_choice="PostgreSQL"
+                db_choice="pgsql"
                 db_dependencies="php5-pgsql postgresql-client postgresql-commonq postgresql-server"
                 echo "Creation of the database not yet automatized, do it yourself or come back soon"
                 ;;
@@ -110,6 +110,7 @@ fi
 ##########################
 echo -e '\E[37;00m'"\033[1m\n4 - Installing packages dependencies and required tools\n\033[0m"
 
+apt-get update
 apt-get install  $webserver $db_dependencies $dependencies $tool_to_install
 
 ##########################
@@ -134,7 +135,7 @@ php composer.phar install
 echo -e '\E[37;00m'"\033[1m\n7 - Configuring database\n\033[0m"
 
 generated_password=`tr -dc A-Za-z0-9_ < /dev/urandom | head -c 12 | xargs`
-if [ "$db_choice" = "MySQL"  ]; then
+if [ "$db_choice" = "mysql"  ]; then
         port=3306
         statement="CREATE DATABASE movimDB ; CREATE USER 'movimAdmin'@'localhost' IDENTIFIED BY '$generated_password' ; GRANT ALL PRIVILEGES ON movimDB.* TO 'movimAdmin'@'localhost' WITH GRANT OPTION ;"
 
@@ -142,9 +143,19 @@ if [ "$db_choice" = "MySQL"  ]; then
         read -s mysql_root_password
 
         echo $statement | mysql -uroot --password="$mysql_root_password" mysql
-
-        echo -e "<?php\n\$conf = array(\n\t'type' => 'mysql',\n\t'username' => 'movimAdmin',\n\t'password' => '$generated_password',\n\t'host' => 'localhost',\n\t'port' => $port,\n\t'database' => 'movimDB'\n);" > $website_root/movim/config/db.inc.php
 fi
+if [ "$db_choice" = "pgsql"  ]; then
+        port=5432
+        statement="CREATE USER movimAdmin WITH NOCREATEDB ENCRYPTED PASSWORD '$generated_password' ; CREATE DATABASE movimDB WITH OWNER = MovimAdmin"
+
+        echo -n "Enter the PostgreSQL root password :"
+        read -s pgsql_root_password
+
+        echo $statement | mysql -uroot --password="$pgsql_root_password" mysql
+fi
+
+echo -e "<?php\n\$conf = array(\n\t'type' => '$db_choice',\n\t'username' => 'movimAdmin',\n\t'password' => '$generated_password',\n\t'host' => 'localhost',\n\t'port' => $port,\n\t'database' => 'movimDB'\n);" > $website_root/movim/config/db.inc.php
+
 
 chown www-data:www-data -R $website_root/movim
 
